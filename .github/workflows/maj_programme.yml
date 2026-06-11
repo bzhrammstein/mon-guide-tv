@@ -28,3 +28,5 @@ jobs:
         git add programmes.json
         git commit -m "Mise à jour matinale des programmes" || exit 0
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
