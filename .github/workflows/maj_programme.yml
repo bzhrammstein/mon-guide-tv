@@ -6,6 +6,10 @@ on:
     - cron: '0 4 * * *'
   workflow_dispatch: # Permet de forcer manuellement le démarrage d'un clic
 
+# Cette section indique explicitement à GitHub d'autoriser l'écriture sur votre dépôt
+permissions:
+  contents: write
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -28,5 +32,3 @@ jobs:
         git add programmes.json
         git commit -m "Mise à jour matinale des programmes" || exit 0
         git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
