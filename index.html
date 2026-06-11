@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Guide TV Centralisé</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; padding: 20px; margin: 0; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h2 { color: #1e293b; }
+        .controls { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        select, input { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; }
+        input { flex-grow: 1; }
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #0f172a; color: white; font-weight: 600; }
+        tr:hover { background-color: #f8fafc; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .source-tnt { background: #fee2e2; color: #991b1b; }
+        .source-samsung { background: #e0f2fe; color: #0369a1; }
+        .no-data { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>📺 Mon Programme TV du Jour</h2>
+    <div class="controls">
+        <select id="filter-source" onchange="filtrerProgrammes()">
+            <option value="tous">Toutes les sources</option>
+            <option value="TNT">TNT (Free/Molotov)</option>
+            <option value="Samsung TV Plus">Samsung TV Plus</option>
+        </select>
+        <select id="filter-genre" onchange="filtrerProgrammes()">
+            <option value="tous">Tous les genres</option>
+            <option value="Film">Films</option>
+            <option value="Série">Séries</option>
+            <option value="Documentaire">Documentaires</option>
+            <option value="Actualité">Infos / Mag</option>
+        </select>
+        <input type="text" id="search-bar" onkeyup="filtrerProgrammes()" placeholder="Rechercher une chaîne, un film, un acteur...">
+    </div>
+
+    <table id="tv-table">
+        <thead>
+            <tr>
+                <th style="width: 10%;">Heure</th>
+                <th style="width: 20%;">Chaîne</th>
+                <th style="width: 45%;">Programme</th>
+                <th style="width: 13%;">Genre</th>
+                <th style="width: 12%;">Source</th>
+            </tr>
+        </thead>
+        <tbody id="tv-body">
+            <tr><td colspan="5" class="no-data">Chargement des programmes matinals...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let programmesDuJour = [];
+
+    // Récupération automatique du fichier généré par le script Python
+    fetch('programmes.json')
+        .then(response => response.json())
+        .then(data => {
+            programmesDuJour = data;
+            afficherProgrammes(programmesDuJour);
+        })
+        .catch(error => {
+            document.getElementById('tv-body').innerHTML = `<tr><td colspan="5" class="no-data">Aucun programme disponible pour le moment. Le premier tri aura lieu demain matin à 5h !</td></tr>`;
+        });
+
+    function afficherProgrammes(liste) {
+        const tbody = document.getElementById('tv-body');
+        tbody.innerHTML = '';
+        if(liste.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="no-data font-style: normal;">Aucun programme ne correspond à votre recherche.</td></tr>';
+            return;
+        }
+        liste.forEach(p => {
+            const badgeClass = p.source === 'Samsung TV Plus' ? 'source-samsung' : 'source-tnt';
+            const row = `<tr>
+                <td><strong>${p.heure}</strong></td>
+                <td>${p.chaine}</td>
+                <td><strong>${p.titre}</strong></td>
+                <td>${p.genre}</td>
+                <td><span class="badge ${badgeClass}">${p.source}</span></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    function filtrerProgrammes() {
+        const srcValue = document.getElementById('filter-source').value;
+        const genreValue = document.getElementById('filter-genre').value;
+        const searchValue = document.getElementById('search-bar').value.toLowerCase();
+
+        const filtres = programmesDuJour.filter(p => {
+            const matchSource = (srcValue === 'tous' || p.source === srcValue);
+            const matchGenre = (genreValue === 'tous' || p.genre === genreValue);
+            const matchSearch = p.titre.toLowerCase().includes(searchValue) || p.chaine.toLowerCase().includes(searchValue);
+            return matchSource && matchGenre && matchSearch;
+        });
+        afficherProgrammes(filtres);
+    }
+</script>
+</body>
+</html>
