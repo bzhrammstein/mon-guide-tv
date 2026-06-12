@@ -2,12 +2,11 @@ name: Extraction TV Matinale
 
 on:
   schedule:
-    # Déclenchement automatique à 4h00 UTC (6h00 du matin en France)
     - cron: '0 4 * * *'
-  workflow_dispatch: # Permet de forcer manuellement le rafraîchissement
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -15,12 +14,10 @@ jobs:
   run-script:
     runs-on: ubuntu-latest
     steps:
-    - name: Récupération du projet depuis le dépôt
+    - name: Récupération du projet
       uses: actions/checkout@v4
-      with:
-        persist-credentials: true
 
-    - name: Configuration de l'environnement Python
+    - name: Configuration de Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
@@ -28,21 +25,13 @@ jobs:
     - name: Lancement de l'extraction des programmes
       run: python update_tv.py
 
-    - name: Sauvegarde et publication du fichier JSON sur le dépôt
-      run: |
-        git config --global user.name "GitHub Actions Bot"
-        git config --global user.email "actions@github.com"
-        git add programmes.json
-        git commit -m "Mise à jour automatique des programmes TV [skip ci]" || echo "Aucune modification à signaler"
-        git push origin main
-
     - name: Configuration de GitHub Pages
       uses: actions/configure-pages@v5
 
-    - name: Création et empaquetage de l'artéfact Web
+    - name: Création de l'artéfact Web (Inclusion du JSON)
       uses: actions/upload-pages-artifact@v3
       with:
         path: '.'
 
-    - name: Déploiement en ligne sur GitHub Pages
+    - name: Déploiement direct en ligne
       uses: actions/deploy-pages@v4
