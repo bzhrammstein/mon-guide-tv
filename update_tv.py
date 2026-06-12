@@ -3,41 +3,62 @@ import json
 def main():
     print("Génération de la grille de programmes fixe...")
     
-    # Création d'une vraie grille complète de programmes pour tester l'interface
-    programmes = [
-        # MATIN
-        {"heure": "06:30", "chaine": "TF1", "titre": "Téléshopping", "genre": "Autre", "source": "TNT"},
-        {"heure": "06:30", "chaine": "France 2", "titre": "Télématin", "genre": "Actualité", "source": "TNT"},
-        {"heure": "08:30", "chaine": "M6", "titre": "M6 Boutique", "genre": "Autre", "source": "TNT"},
-        {"heure": "09:50", "chaine": "France 5", "titre": "La maison France 5", "genre": "Documentaire", "source": "TNT"},
-        
-        # APRÈS-MIDI
-        {"heure": "13:00", "chaine": "TF1", "titre": "Journal de 13h", "genre": "Actualité", "source": "TNT"},
-        {"heure": "13:00", "chaine": "France 2", "titre": "Journal de 13h", "genre": "Actualité", "source": "TNT"},
-        {"heure": "13:45", "chaine": "Arte", "titre": "Mystères d'archives", "genre": "Documentaire", "source": "TNT"},
-        {"heure": "14:00", "chaine": "Comedy Central", "titre": "The Daily Show", "genre": "Série", "source": "Samsung TV Plus"},
-        {"heure": "17:30", "chaine": "France 5", "titre": "C dans l'air", "genre": "Actualité", "source": "TNT"},
-        {"heure": "19:10", "chaine": "M6", "titre": "Le 19.45", "genre": "Actualité", "source": "TNT"},
-        
-        # SOIRÉE (Prime Time)
-        {"heure": "21:10", "chaine": "TF1", "titre": "Grand Film du Vendredi", "genre": "Film", "source": "TNT"},
-        {"heure": "21:10", "chaine": "France 2", "titre": "Série Policière", "genre": "Série", "source": "TNT"},
-        {"heure": "21:10", "chaine": "France 3", "titre": "Faut pas rêver", "genre": "Documentaire", "source": "TNT"},
-        {"heure": "21:10", "chaine": "M6", "titre": "Recherche appartement ou maison", "genre": "Autre", "source": "TNT"},
-        {"heure": "21:15", "chaine": "Arte", "titre": "Cinéma d'auteur", "genre": "Film", "source": "TNT"},
-        {"heure": "21:15", "chaine": "W9", "titre": "Enquête d'action", "genre": "Documentaire", "source": "TNT"},
-        {"heure": "21:15", "chaine": "TMC", "titre": "90' Enquêtes", "genre": "Documentaire", "source": "TNT"},
-        
-        # CHAÎNES SAMESUNG TV PLUS (Soirée)
-        {"heure": "21:00", "chaine": "Comedy Central", "titre": "Friends - Marathon de la soirée", "genre": "Série", "source": "Samsung TV Plus"},
-        {"heure": "21:00", "chaine": "Rakuten TV Action", "titre": "Dernier train pour Busan", "genre": "Film", "source": "Samsung TV Plus"},
-        {"heure": "21:30", "chaine": "Pluto TV Ciné", "titre": "Le Parrain", "genre": "Film", "source": "Samsung TV Plus"},
-        
-        # DEUXIÈME PARTIE DE SOIRÉE
-        {"heure": "22:45", "chaine": "TF1", "titre": "Vendredi, tout est permis", "genre": "Autre", "source": "TNT"},
-        {"heure": "23:00", "chaine": "France 2", "titre": "Taratata 100% Live", "genre": "Autre", "source": "TNT"},
-        {"heure": "23:20", "chaine": "Arte", "titre": "Court-circuit", "genre": "Film", "source": "TNT"}
-    ]
+   # Mapping étendu et actualisé selon la nouvelle grille TNT
+CHAINES_MAPPING = {
+    # --- FREEBOX TV (TNT Nouvelle Génération) ---
+    'TF1.fr': ('1', 'TF1', 'Freebox / Molotov'),
+    'France2.fr': ('2', 'France 2', 'Freebox / Molotov'),
+    'France3.fr': ('3', 'France 3', 'Freebox / Molotov'),
+    'CanalPlus.fr': ('4', 'Canal+', 'Freebox / Molotov'),
+    'France5.fr': ('5', 'France 5', 'Freebox / Molotov'),
+    'M6.fr': ('6', 'M6', 'Freebox / Molotov'),
+    'Arte.fr': ('7', 'Arte', 'Freebox / Molotov'),
+    'C8.fr': ('8', 'C8', 'Freebox / Molotov'),
+    'W9.fr': ('9', 'W9', 'Freebox / Molotov'),
+    'TMC.fr': ('10', 'TMC', 'Freebox / Molotov'),
+    'TFX.fr': ('11', 'TFX', 'Freebox / Molotov'),
+    'TeleStarTV.fr': ('12', 'Télé Star TV', 'Freebox / Molotov'), # Remplacement de NRJ12
+    'LCP.fr': ('13', 'LCP Public Sénat', 'Freebox / Molotov'),
+    'France4.fr': ('14', 'France 4', 'Freebox / Molotov'),
+    'BFMTV.fr': ('15', 'BFM TV', 'Freebox / Molotov'),
+    'CNews.fr': ('16', 'CNews', 'Freebox / Molotov'),
+    'CStar.fr': ('17', 'CStar', 'Freebox / Molotov'),
+    'Gulli.fr': ('18', 'Gulli', 'Freebox / Molotov'),
+    'TF1SeriesFilms.fr': ('19', 'TF1 Series Films', 'Freebox / Molotov'),
+    'LEquipe.fr': ('20', "L'Equipe", 'Freebox / Molotov'),
+    '6ter.fr': ('21', '6ter', 'Freebox / Molotov'),
+    'RMCStory.fr': ('22', 'RMC Story', 'Freebox / Molotov'),
+    'RMCDecouverte.fr': ('23', 'RMC Découverte', 'Freebox / Molotov'),
+    'OuestFranceTV.fr': ('25', 'Ouest-France TV', 'Freebox / Molotov'), # Remplacement de Chérie 25
+    'LCI.fr': ('26', 'LCI', 'Freebox / Molotov'),
+    'FranceInfo.fr': ('27', 'Franceinfo', 'Freebox / Molotov'),
+
+    # --- EXTENSION FREEBOX TV & SÉRIES ---
+    'ParisPremiere.fr': ('28', 'Paris Première', 'Freebox TV'),
+    'RTL9.fr': ('29', 'RTL 9', 'Freebox TV'),
+    'Teva.fr': ('53', 'Téva', 'Freebox TV'),
+    'PolarPlus.fr': ('55', 'Polar+', 'Freebox TV'),
+    'Breizh.fr': ('54', 'TV Breizh', 'Freebox TV'),
+    'Action.fr': ('82', 'Action', 'Freebox TV'),
+    'GameOne.fr': ('118', 'Game One', 'Freebox TV'),
+    'Mangas.fr': ('121', 'Mangas', 'Freebox TV'),
+    'Histoire.fr': ('205', 'Histoire TV', 'Freebox TV'),
+    'TouteLaHistoire.fr': ('206', 'Toute l\'Histoire', 'Freebox TV'),
+    'ScienceEtVie.fr': ('207', 'Science & Vie TV', 'Freebox TV'),
+    'Ushuaia.fr': ('204', 'Ushuaïa TV', 'Freebox TV'),
+    'TV5Monde.fr': ('357', 'TV5 Monde', 'Freebox TV'),
+
+    # --- SAMSUNG TV PLUS ---
+    'ComedyCentral.fr': ('4124', 'Comedy Central', 'Samsung TV Plus'),
+    'PlutoTVCine.fr': ('4142', 'Pluto TV Ciné', 'Samsung TV Plus'),
+    'RakutenTVAction.fr': ('4112', 'Rakuten TV Action', 'Samsung TV Plus'),
+    'DoctorWho.fr': ('4304', 'Doctor Who TV', 'Samsung TV Plus'),
+    'PlutoTVSeries.fr': ('4145', 'Pluto TV Séries', 'Samsung TV Plus'),
+    'RakutenTVComedie.fr': ('4113', 'Rakuten TV Comédie', 'Samsung TV Plus'),
+    'BFMTV_Samsung.fr': ('4001', 'BFM TV (Flux FAST)', 'Samsung TV Plus'),
+    'WilderTV.fr': ('4135', 'Wilder TV', 'Samsung TV Plus'),
+    'VevoPop.fr': ('4701', 'Vevo Pop', 'Samsung TV Plus')
+}
 
     # Écriture immédiate du fichier JSON pour l'interface web
     with open("programmes.json", "w", encoding="utf-8") as f:
