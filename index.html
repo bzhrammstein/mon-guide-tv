@@ -57,16 +57,22 @@
 </div>
 
 <script>
-    let programmesDuJour = [];
+   let programmesDuJour = [];
 
-  // Récupération automatique sans cache
-fetch('programmes.json?v=' + f = new Date().getTime())
-        .then(response => response.json())
+    // Récupération automatique avec un système anti-cache valide
+    fetch('programmes.json?t=' + Date.now())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Fichier introuvable");
+            }
+            return response.json();
+        })
         .then(data => {
             programmesDuJour = data;
             afficherProgrammes(programmesDuJour);
         })
         .catch(error => {
+            console.error(error);
             document.getElementById('tv-body').innerHTML = `<tr><td colspan="5" class="no-data">Aucun programme disponible pour le moment. Le premier tri aura lieu demain matin à 5h !</td></tr>`;
         });
 
