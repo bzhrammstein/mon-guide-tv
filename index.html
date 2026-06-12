@@ -59,8 +59,8 @@
 <script>
     let programmesDuJour = [];
 
-    // Récupération automatique du fichier généré par le script Python
-    fetch('programmes.json')
+  // Récupération automatique sans cache
+fetch('programmes.json?v=' + f = new Date().getTime())
         .then(response => response.json())
         .then(data => {
             programmesDuJour = data;
