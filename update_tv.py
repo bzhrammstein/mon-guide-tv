@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # Source internationale haut de gamme, conçue pour supporter les requêtes Cloud Actions
-XMLTV_URL = "https://iptv-org.github.io/epg/guides/fr/telerama.fr.xml"
+XMLTV_URL = "https://iptv-org.github.io/epg/guides/telerama.fr.xml"
 
 # Mapping exact pour cette source (Codes Télérama officiels)
 CHAINES_MAPPING = {
