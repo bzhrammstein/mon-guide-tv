@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 
 # Flux XMLTV officiel Télérama hébergé sur GitHub (Autorisé à 100% par l'automate)
-XMLTV_URL = "https://raw.githubusercontent.com/Polyedre/xmltv-france/master/tvguide.xml"
+XMLTV_URL = "https://xmltv.ch/xmltv/xmltv-tnt.xml"
 
 # Correspondance des identifiants techniques Télérama pour vos chaînes préférées
 CHAINES_MAPPING = {
