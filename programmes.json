@@ -1,1 +1,242 @@
-[]
+[
+    {
+        "canal": "1",
+        "heure": "06:30",
+        "chaine": "TF1",
+        "titre": "Téléshopping",
+        "genre": "Autre",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "1",
+        "heure": "09:25",
+        "chaine": "TF1",
+        "titre": "Amour, Gloire et Beauté",
+        "genre": "Série",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "1",
+        "heure": "13:00",
+        "chaine": "TF1",
+        "titre": "Journal de 13h",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "1",
+        "heure": "13:55",
+        "chaine": "TF1",
+        "titre": "Camping Paradis - Bleus à l'âme",
+        "genre": "Série",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "1",
+        "heure": "21:10",
+        "chaine": "TF1",
+        "titre": "Cruella (Film d'aventure avec Emma Stone)",
+        "genre": "Film",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "1",
+        "heure": "23:20",
+        "chaine": "TF1",
+        "titre": "Vendredi tout est permis avec Arthur",
+        "genre": "Autre",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "2",
+        "heure": "06:30",
+        "chaine": "France 2",
+        "titre": "Télématin",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "2",
+        "heure": "13:00",
+        "chaine": "France 2",
+        "titre": "Journal de 13h",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "2",
+        "heure": "14:00",
+        "chaine": "France 2",
+        "titre": "Ça commence aujourd'hui",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "2",
+        "heure": "21:10",
+        "chaine": "France 2",
+        "titre": "Tropiques criminels - Saison 5 Épisode 7",
+        "genre": "Série",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "2",
+        "heure": "22:45",
+        "chaine": "France 2",
+        "titre": "Taratata 100% Live",
+        "genre": "Autre",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "3",
+        "heure": "12:00",
+        "chaine": "France 3",
+        "titre": "Le 12/13 Régional",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "3",
+        "heure": "14:00",
+        "chaine": "France 3",
+        "titre": "L'après-midi du cyclisme : Le Critérium du Dauphiné",
+        "genre": "Autre",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "3",
+        "heure": "21:10",
+        "chaine": "France 3",
+        "titre": "Archives secrètes : Les loisirs des présidents",
+        "genre": "Documentaire",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "4",
+        "heure": "13:30",
+        "chaine": "Canal+",
+        "titre": "En Direct des Stands : Essais Libres de Formule 1",
+        "genre": "Autre",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "4",
+        "heure": "21:10",
+        "chaine": "Canal+",
+        "titre": "Dune : Deuxième Partie (Film de Denis Villeneuve)",
+        "genre": "Film",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "5",
+        "heure": "17:45",
+        "chaine": "France 5",
+        "titre": "C dans l'air",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "5",
+        "heure": "21:05",
+        "chaine": "France 5",
+        "titre": "La guerre des arbres : Enquête sur la déforestation",
+        "genre": "Documentaire",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "6",
+        "heure": "12:45",
+        "chaine": "M6",
+        "titre": "Le 12.45",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "6",
+        "heure": "21:10",
+        "chaine": "M6",
+        "titre": "Cauchemar en cuisine - Restauration à Notre-Dame-de-Vaulx",
+        "genre": "Autre",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "7",
+        "heure": "19:45",
+        "chaine": "Arte",
+        "titre": "Arte Journal",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "7",
+        "heure": "20:55",
+        "chaine": "Arte",
+        "titre": "Le Fanfaron (Chef-d'œuvre de Dino Risi)",
+        "genre": "Film",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "7",
+        "heure": "22:40",
+        "chaine": "Arte",
+        "titre": "Tracks - L'actualité des contre-cultures",
+        "genre": "Documentaire",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "12",
+        "heure": "21:15",
+        "chaine": "RéelsTV",
+        "titre": "Enquête exclusive : Les nouveaux visages du Grand Banditisme",
+        "genre": "Documentaire",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "18",
+        "heure": "21:10",
+        "chaine": "T18",
+        "titre": "Le Mans 66 (Film avec Matt Damon et Christian Bale)",
+        "genre": "Film",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "24",
+        "heure": "21:00",
+        "chaine": "NOVO",
+        "titre": "Grand Débat Société : L'impact du numérique",
+        "genre": "Actualité",
+        "source": "Freebox / Molotov"
+    },
+    {
+        "canal": "55",
+        "heure": "21:00",
+        "chaine": "Polar+",
+        "titre": "Inspecteur Barnaby - Le saut de la foi",
+        "genre": "Série",
+        "source": "Freebox TV"
+    },
+    {
+        "canal": "55",
+        "heure": "22:35",
+        "chaine": "Polar+",
+        "titre": "The Bridge - Saison 4 Épisode 3",
+        "genre": "Série",
+        "source": "Freebox TV"
+    },
+    {
+        "canal": "4124",
+        "heure": "21:00",
+        "chaine": "Comedy Central",
+        "titre": "Friends - Celui qui avait un sweat-shirt",
+        "genre": "Série",
+        "source": "Samsung TV Plus"
+    },
+    {
+        "canal": "4142",
+        "heure": "21:15",
+        "chaine": "Pluto TV Ciné",
+        "titre": "Gladiator (Film historique de Ridley Scott)",
+        "genre": "Film",
+        "source": "Samsung TV Plus"
+    }
+]
