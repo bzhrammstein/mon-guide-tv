@@ -1,9 +1,7 @@
 name: Extraction TV Matinale
 
 on:
-  schedule:
-    - cron: '0 4 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # Permet uniquement un déclenchement manuel si besoin
 
 permissions:
   contents: read
@@ -11,27 +9,19 @@ permissions:
   id-token: write
 
 jobs:
-  run-script:
+  deploy-site:
     runs-on: ubuntu-latest
     steps:
     - name: Récupération du projet
       uses: actions/checkout@v4
 
-    - name: Configuration de Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Lancement de l'extraction des programmes
-      run: python update_tv.py
-
     - name: Configuration de GitHub Pages
       uses: actions/configure-pages@v5
 
-    - name: Création de l'artéfact Web (Inclusion du JSON)
+    - name: Création de l'artéfact Web
       uses: actions/upload-pages-artifact@v3
       with:
         path: '.'
 
-    - name: Déploiement direct en ligne
+    - name: Déploiement en ligne direct
       uses: actions/deploy-pages@v4
