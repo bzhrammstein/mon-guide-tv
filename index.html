@@ -6,30 +6,31 @@
     <title>Mon Guide TV Centralisé</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; padding: 20px; margin: 0; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
         h2 { color: #1e293b; }
         .controls { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
         select, input, button { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; }
         input { flex-grow: 1; }
-        button { background: #0f172a; color: white; cursor: pointer; font-weight: bold; }
-        button:hover { background: #1e293b; }
+        button { background: #0056b3; color: white; cursor: pointer; font-weight: bold; border: none; }
+        button:hover { background: #004085; }
         table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
         th { background-color: #0f172a; color: white; font-weight: 600; }
         tr:hover { background-color: #f8fafc; }
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .source-tnt { background: #fee2e2; color: #991b1b; }
+        .source-freebox { background: #fee2e2; color: #991b1b; }
         .source-samsung { background: #e0f2fe; color: #0369a1; }
         .no-data { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
+        .canal-badge { background: #e2e8f0; color: #334155; padding: 3px 7px; border-radius: 4px; font-weight: bold; font-size: 13px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>📺 Mon Programme TV du Jour</h2>
+    <h2>📺 Mon Programme TV Dynamique</h2>
     <div class="controls">
         <select id="filter-source" onchange="filtrerProgrammes()">
             <option value="tous">Toutes les sources</option>
-            <option value="TNT">TNT (Free/Molotov)</option>
+            <option value="Freebox">Freebox TV</option>
             <option value="Samsung TV Plus">Samsung TV Plus</option>
         </select>
         <select id="filter-genre" onchange="filtrerProgrammes()">
@@ -39,22 +40,23 @@
             <option value="Documentaire">Documentaires</option>
             <option value="Actualité">Infos / Mag</option>
         </select>
-        <input type="text" id="search-bar" onkeyup="filtrerProgrammes()" placeholder="Rechercher une chaîne, un film...">
+        <input type="text" id="search-bar" onkeyup="filtrerProgrammes()" placeholder="Rechercher une chaîne, un canal, un titre...">
         <button onclick="chargerDonnees()">🔄 Forcer la mise à jour</button>
     </div>
 
     <table id="tv-table">
         <thead>
             <tr>
+                <th style="width: 8%;">Canal</th>
                 <th style="width: 10%;">Heure</th>
-                <th style="width: 20%;">Chaîne</th>
-                <th style="width: 45%;">Programme</th>
-                <th style="width: 13%;">Genre</th>
+                <th style="width: 18%;">Chaîne</th>
+                <th style="width: 42%;">Programme</th>
+                <th style="width: 10%;">Genre</th>
                 <th style="width: 12%;">Source</th>
             </tr>
         </thead>
         <tbody id="tv-body">
-            <tr><td colspan="5" class="no-data">Connexion au serveur de programmes...</td></tr>
+            <tr><td colspan="6" class="no-data">Connexion au serveur de programmes...</td></tr>
         </tbody>
     </table>
 </div>
@@ -64,13 +66,11 @@
 
     function chargerDonnees() {
         const tbody = document.getElementById('tv-body');
-        tbody.innerHTML = '<tr><td colspan="5" class="no-data">Chargement des données fraîches...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="no-data">Chargement des données fraîches...</td></tr>';
         
         fetch('./programmes.json?nocache=' + Math.random())
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Le fichier programmes.json est introuvable sur le serveur (Erreur " + response.status + ")");
-                }
+                if (!response.ok) throw new Error("Erreur de chargement du fichier JSON");
                 return response.json();
             })
             .then(data => {
@@ -78,7 +78,7 @@
                 afficherProgrammes(programmesDuJour);
             })
             .catch(error => {
-                tbody.innerHTML = `<tr><td colspan="5" class="no-data" style="color: #dc2626;">❌ Erreur : ${error.message}<br><br>L'automate n'a pas encore fini de déployer le fichier. Attendez 1 minute et cliquez sur le bouton "Forcer la mise à jour".</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="no-data" style="color: #dc2626;">❌ Erreur : Impossible de lire les données. Attendez 30 secondes et cliquez sur "Forcer la mise à jour".</td></tr>`;
             });
     }
 
@@ -86,12 +86,13 @@
         const tbody = document.getElementById('tv-body');
         tbody.innerHTML = '';
         if(liste.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="no-data">Aucun programme ne correspond à vos filtres.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="no-data">Aucun programme ne correspond à vos filtres.</td></tr>';
             return;
         }
         liste.forEach(p => {
-            const badgeClass = p.source === 'Samsung TV Plus' ? 'source-samsung' : 'source-tnt';
+            const badgeClass = p.source === 'Samsung TV Plus' ? 'source-samsung' : 'source-freebox';
             const row = `<tr>
+                <td><span class="canal-badge">N° ${p.canal}</span></td>
                 <td><strong>${p.heure}</strong></td>
                 <td>${p.chaine}</td>
                 <td><strong>${p.titre}</strong></td>
@@ -108,9 +109,11 @@
         const searchValue = document.getElementById('search-bar').value.toLowerCase();
 
         const filtres = programmesDuJour.filter(p => {
-            const matchSource = (srcValue === 'tous' || p.source === srcValue);
+            const matchSource = (srcValue === 'tous' || p.source.includes(srcValue));
             const matchGenre = (genreValue === 'tous' || p.genre === genreValue);
-            const matchSearch = p.titre.toLowerCase().includes(searchValue) || p.chaine.toLowerCase().includes(searchValue);
+            const matchSearch = p.titre.toLowerCase().includes(searchValue) || 
+                                p.chaine.toLowerCase().includes(searchValue) || 
+                                p.canal.toString() === searchValue;
             return matchSource && matchGenre && matchSearch;
         });
         afficherProgrammes(filtres);
