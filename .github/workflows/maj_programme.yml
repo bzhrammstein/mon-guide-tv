@@ -2,8 +2,9 @@ name: Extraction TV Matinale
 
 on:
   schedule:
+    # Déclenchement à 4h00 UTC (6h00 du matin en France)
     - cron: '0 4 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # Permet de forcer manuellement
 
 permissions:
   contents: read
@@ -25,13 +26,17 @@ jobs:
     - name: Lancement du nettoyage des chaînes
       run: python update_tv.py
 
+    - name: Vérification de la présence du fichier JSON
+      run: ls -la
+
     - name: Configuration de GitHub Pages
       uses: actions/configure-pages@v4
 
-    - name: Création du paquet web
+    - name: Création et empaquetage des fichiers web
       uses: actions/upload-pages-artifact@v3
       with:
+        # On spécifie explicitement de prendre tout le dossier courant (.)
         path: '.'
 
-    - name: Déploiement sur GitHub Pages
+    - name: Déploiement direct sur GitHub Pages
       uses: actions/deploy-pages@v4
