@@ -9,8 +9,10 @@
         .container { max-width: 1000px; margin: 0 auto; }
         h2 { color: #1e293b; }
         .controls { margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        select, input { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; }
+        select, input, button { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 14px; }
         input { flex-grow: 1; }
+        button { background: #0f172a; color: white; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1e293b; }
         table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
         th { background-color: #0f172a; color: white; font-weight: 600; }
@@ -37,7 +39,8 @@
             <option value="Documentaire">Documentaires</option>
             <option value="Actualité">Infos / Mag</option>
         </select>
-        <input type="text" id="search-bar" onkeyup="filtrerProgrammes()" placeholder="Rechercher une chaîne, un film, un acteur...">
+        <input type="text" id="search-bar" onkeyup="filtrerProgrammes()" placeholder="Rechercher une chaîne, un film...">
+        <button onclick="chargerDonnees()">🔄 Forcer la mise à jour</button>
     </div>
 
     <table id="tv-table">
@@ -51,36 +54,39 @@
             </tr>
         </thead>
         <tbody id="tv-body">
-            <tr><td colspan="5" class="no-data">Chargement des programmes matinals...</td></tr>
+            <tr><td colspan="5" class="no-data">Connexion au serveur de programmes...</td></tr>
         </tbody>
     </table>
 </div>
 
 <script>
-   let programmesDuJour = [];
+    let programmesDuJour = [];
 
-    // Récupération automatique avec un système anti-cache valide
-    fetch('programmes.json?t=' + Date.now())
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Fichier introuvable");
-            }
-            return response.json();
-        })
-        .then(data => {
-            programmesDuJour = data;
-            afficherProgrammes(programmesDuJour);
-        })
-        .catch(error => {
-            console.error(error);
-            document.getElementById('tv-body').innerHTML = `<tr><td colspan="5" class="no-data">Aucun programme disponible pour le moment. Le premier tri aura lieu demain matin à 5h !</td></tr>`;
-        });
+    function chargerDonnees() {
+        const tbody = document.getElementById('tv-body');
+        tbody.innerHTML = '<tr><td colspan="5" class="no-data">Chargement des données fraîches...</td></tr>';
+        
+        fetch('./programmes.json?nocache=' + Math.random())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Le fichier programmes.json est introuvable sur le serveur (Erreur " + response.status + ")");
+                }
+                return response.json();
+            })
+            .then(data => {
+                programmesDuJour = data;
+                afficherProgrammes(programmesDuJour);
+            })
+            .catch(error => {
+                tbody.innerHTML = `<tr><td colspan="5" class="no-data" style="color: #dc2626;">❌ Erreur : ${error.message}<br><br>L'automate n'a pas encore fini de déployer le fichier. Attendez 1 minute et cliquez sur le bouton "Forcer la mise à jour".</td></tr>`;
+            });
+    }
 
     function afficherProgrammes(liste) {
         const tbody = document.getElementById('tv-body');
         tbody.innerHTML = '';
         if(liste.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="no-data font-style: normal;">Aucun programme ne correspond à votre recherche.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="no-data">Aucun programme ne correspond à vos filtres.</td></tr>';
             return;
         }
         liste.forEach(p => {
@@ -109,6 +115,8 @@
         });
         afficherProgrammes(filtres);
     }
+
+    window.onload = chargerDonnees;
 </script>
 </body>
 </html>
