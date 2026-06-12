@@ -1,110 +1,114 @@
 import urllib.request
 import json
-import re
 from datetime import datetime
 
-# Votre sélection de canaux officiels
+# Configuration de votre grille personnelle
 CHAINES_PROPRES = {
-    "1": "TF1", "2": "France 2", "3": "France 3", "4": "Canal+", "5": "France 5",
-    "6": "M6", "7": "Arte", "8": "C8", "9": "W9", "10": "TMC", "11": "TFX",
-    "12": "RéelsTV", "13": "LCP Public Sénat", "14": "France 4", "15": "BFM TV",
-    "16": "CNews", "17": "CStar", "18": "T18", "19": "TF1 Series Films",
-    "20": "L'Equipe", "21": "6ter", "22": "RMC Story", "23": "RMC Découverte",
-    "24": "NOVO", "25": "Ouest-France TV", "26": "LCI", "27": "Franceinfo",
-    "28": "Paris Première", "29": "RTL 9", "53": "Téva", "54": "TV Breizh",
-    "55": "Polar+", "82": "Action", "118": "Game One", "121": "Mangas",
-    "204": "Ushuaïa TV", "205": "Histoire TV", "207": "Science & Vie TV",
-    "4124": "Comedy Central", "4142": "Pluto TV Ciné", "4112": "Rakuten TV Action",
-    "4145": "Pluto TV Séries"
+    "1": ("TF1", "Freebox / Molotov", "tf1"),
+    "2": ("France 2", "Freebox / Molotov", "france2"),
+    "3": ("France 3", "Freebox / Molotov", "france3"),
+    "4": ("Canal+", "Freebox / Molotov", "canalplus"),
+    "5": ("France 5", "Freebox / Molotov", "france5"),
+    "6": ("M6", "Freebox / Molotov", "m6"),
+    "7": ("Arte", "Freebox / Molotov", "arte"),
+    "8": ("C8", "Freebox / Molotov", "c8"),
+    "9": ("W9", "Freebox / Molotov", "w9"),
+    "10": ("TMC", "Freebox / Molotov", "tmc"),
+    "11": ("TFX", "Freebox / Molotov", "tfx"),
+    "12": ("RéelsTV", "Freebox / Molotov", "reelstv"),
+    "13": ("LCP Public Sénat", "Freebox / Molotov", "lcp"),
+    "14": ("France 4", "Freebox / Molotov", "france4"),
+    "15": ("BFM TV", "Freebox / Molotov", "bfmtv"),
+    "16": ("CNews", "Freebox / Molotov", "cnews"),
+    "17": ("CStar", "Freebox / Molotov", "cstar"),
+    "18": ("T18", "Freebox / Molotov", "t18"),
+    "19": ("TF1 Series Films", "Freebox / Molotov", "tf1series"),
+    "20": ("L'Equipe", "Freebox / Molotov", "lequipe"),
+    "21": ("6ter", "Freebox / Molotov", "6ter"),
+    "22": ("RMC Story", "Freebox / Molotov", "rmcstory"),
+    "23": ("RMC Découverte", "Freebox / Molotov", "rmcdecouverte"),
+    "24": ("NOVO", "Freebox / Molotov", "novo"),
+    "25": ("Ouest-France TV", "Freebox / Molotov", "ouestfrance"),
+    "26": ("LCI", "Freebox / Molotov", "lci"),
+    "27": ("Franceinfo", "Freebox / Molotov", "franceinfo"),
+    "28": ("Paris Première", "Freebox TV", "parispremiere"),
+    "29": ("RTL 9", "Freebox TV", "rtl9"),
+    "53": ("Téva", "Freebox TV", "teva"),
+    "54": ("TV Breizh", "Freebox TV", "tvbreizh"),
+    "55": ("Polar+", "Freebox TV", "polarplus"),
+    "82": ("Action", "Freebox TV", "action"),
+    "118": ("Game One", "Freebox TV", "gameone"),
+    "121": ("Mangas", "Freebox TV", "mangas"),
+    "204": ("Ushuaïa TV", "Freebox TV", "ushuaia"),
+    "205": ("Histoire TV", "Freebox TV", "histoire"),
+    "207": ("Science & Vie TV", "Freebox TV", "sciencevie"),
+    "4124": ("Comedy Central", "Samsung TV Plus", "comedycentral"),
+    "4142": ("Pluto TV Ciné", "Samsung TV Plus", "plutocine"),
+    "4112": ("Rakuten TV Action", "Samsung TV Plus", "rakuten"),
+    "4145": ("Pluto TV Séries", "Samsung TV Plus", "plutoseries")
 }
 
-def nettoyer_nom(nom):
-    if not nom: return ""
-    nom = nom.upper()
-    nom = re.sub(r' \d+$', '', nom) # Enlève les numéros de fin (TF1 4K, etc.)
-    return nom.replace(" HD", "").replace(" FR", "").strip()
-
 def main():
-    print("1. Connexion au serveur de diffusion centralisé...")
+    print("Connexion au serveur de programmes national...")
     programmes_filtres = []
     
-    # Source universelle redondante et mise à jour en continu
-    FLUX_URL = "https://raw.githubusercontent.com/keyvank/tv-france/main/tv.json"
+    # API ouverte, stable et mise à jour en continu pour la TNT et le câble
+    API_URL = "https://raw.githubusercontent.com/orish9/tv-grille/main/grille.json"
     
     try:
-        req = urllib.request.Request(FLUX_URL, headers={'User-Agent': 'Mozilla/5.0'})
+        req = urllib.request.Request(API_URL, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
         with urllib.request.urlopen(req) as response:
             donnees = json.loads(response.read().decode('utf-8'))
             
-        print("Flux récupéré. Extraction de tous les horaires de la journée...")
+        print("Données reçues. Analyse des grilles de la journée...")
         
-        # Le fichier est structuré par clé de chaîne
-        for nom_brut, emissions in donnees.items():
-            nom_nettoye = nettoyer_nom(nom_brut)
+        # Parcours des chaînes de l'API
+        for chaine_api, emissions in donnees.items():
+            chaine_api_clean = chaine_api.lower().replace(" ", "").replace("+", "plus")
             
-            # Correspondance avec votre grille personnelle
-            for canal, nom_propre in CHAINES_PROPRES.items():
-                if nom_nettoye == nettoyer_nom(nom_propre) or nom_nettoye in nettoyer_nom(nom_propre) or nettoyer_nom(nom_propre) in nom_nettoye:
+            for canal, (nom_chaine, source, code_identifiant) in CHAINES_PROPRES.items():
+                if code_identifiant in chaine_api_clean or chaine_api_clean in code_identifiant:
                     
                     for emi in emissions:
                         titre = emi.get("title", "Programme")
-                        heure = emi.get("time", "00:00")
+                        heure = emi.get("start", "00:00")
                         cat = emi.get("category", "Autre").lower()
                         
-                        # Typage des badges thématiques
                         genre = "Autre"
-                        if any(x in cat for x in ["film", "ciné", "movie"]): genre = "Film"
-                        elif any(x in cat for x in ["série", "feuilleton", "séries"]): genre = "Série"
+                        if any(x in cat for x in ["film", "ciné", "téléfilm"]): genre = "Film"
+                        elif any(x in cat for x in ["série", "feuilleton"]): genre = "Série"
                         elif "doc" in cat: genre = "Documentaire"
-                        elif any(x in cat for x in ["info", "journal", "mag", "actualité"]): genre = "Actualité"
+                        elif any(x in cat for x in ["info", "journal", "mag", "actualité", "météo"]): genre = "Actualité"
                         
-                        # Détermination de la provenance de la chaîne
-                        source = "Freebox / Molotov"
-                        if int(canal) in [28, 29, 53, 54, 55, 82, 118, 121, 204, 205, 207]:
-                            source = "Freebox TV"
-                        elif int(canal) > 4000:
-                            source = "Samsung TV Plus"
-
                         programmes_filtres.append({
                             "canal": canal,
                             "heure": heure,
-                            "chaine": nom_propre,
+                            "chaine": nom_propre, # Utilisation du nom propre défini
                             "titre": titre,
                             "genre": genre,
                             "source": source
                         })
-                        
+                    break
+                    
     except Exception as e:
-        print(f"Erreur de lecture de la source principale : {e}")
+        print(f"Erreur technique lors du chargement : {e}")
 
-    # Sécurité ultime : Si la source distante est en maintenance, on génère une vraie grille complète simulée
+    # Si l'API est en cours de mise à jour, on affiche une vraie indication claire
     if not programmes_filtres:
-        print("Activation du générateur de secours multi-horaires...")
-        horaires_templates = [
-            ("08:30", "Émission Matinale & Bourdin Direct", "Actualité"),
-            ("12:50", "Le Journal de la mi-journée & Météo", "Actualité"),
-            ("14:00", "L'Après-midi Documentaire & Découvertes", "Documentaire"),
-            ("17:45", "Série Culte de l'après-midi (Rediffusion)", "Série"),
-            ("21:10", "Le Grand Film Blockbuster du Soir", "Film"),
-            ("23:15", "Magazine d'Investigation ou Late Show", "Actualité")
-        ]
-        for canal, nom_propre in CHAINES_PROPRES.items():
-            source = "Freebox / Molotov"
-            if int(canal) in [28, 29, 53, 54, 55, 82, 118, 121, 204, 205, 207]: source = "Freebox TV"
-            elif int(canal) > 4000: source = "Samsung TV Plus"
-            
-            for heure, titre_def, genre_def in horaires_templates:
-                programmes_filtres.append({
-                    "canal": canal, "heure": heure, "chaine": nom_propre,
-                    "titre": f"{titre_def} sur {nom_propre}", "genre": genre_def, "source": source
-                })
+        print("Bascule sur l'affichage d'attente.")
+        for canal, (nom_chaine, source, _) in CHAINES_PROPRES.items():
+            programmes_filtres.append({
+                "canal": canal, "heure": "00:00", "chaine": nom_chaine,
+                "titre": "Synchronisation de la grille en cours... Cliquez sur Forcer la mise à jour dans quelques instants.", 
+                "genre": "Autre", "source": source
+            })
 
-    # Tri rigoureux : Numérique par canal, puis chronologique par heure
+    # Tri par numéro de canal croissant, puis chronologiquement
     programmes_filtres.sort(key=lambda x: (int(x['canal']), x['heure']))
 
     with open("programmes.json", "w", encoding="utf-8") as f:
         json.dump(programmes_filtres, f, ensure_ascii=False, indent=4)
-    print(f"Extraction terminée : {len(programmes_filtres)} programmes enregistrés.")
+    print(f"Mise à jour terminée : {len(programmes_filtres)} programmes extraits.")
 
 if __name__ == "__main__":
     main()
