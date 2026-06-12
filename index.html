@@ -40,6 +40,14 @@
             <option value="Documentaire">Documentaires</option>
             <option value="Actualité">Infos / Mag</option>
         </select>
+        <select id="trancheFilter" onchange="filtrerProgrammes()" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+    <option value="Tous">Toutes les tranches horaires</option>
+    <option value="Matin">Matin (06h - 12h)</option>
+    <option value="Midi">Midi (12h - 14h)</option>
+    <option value="Après-midi">Après-midi (14h - 18h)</option>
+    <option value="Soirée">Soirée (18h - 23h)</option>
+    <option value="Nuit">Nuit (23h - 06h)</option>
+</select>
         <input type="text" id="search-bar" onkeyup="filtrerProgrammes()" placeholder="Rechercher une chaîne, un canal, un titre...">
         <button onclick="chargerDonnees()">🔄 Forcer la mise à jour</button>
     </div>
