@@ -3,23 +3,22 @@ import xml.etree.ElementTree as ET
 import json
 from datetime import datetime
 
-# Flux XMLTV alternatif ultra-léger et stable
+# Flux XMLTV de secours (ultra-stable et mis à jour très tôt le matin)
 XMLTV_URL = "https://xmltvfr.fr/xmltv/programmes.xml"
 
-CHAINES_TNT = ["TF1", "France 2", "France 3", "Canal+", "France 5", "M6", "Arte", "C8", "W9", "TMC", "TFX", "NRJ 12", "France 4", "BFM TV", "CNews", "LCI", "Franceinfo"]
-CHAINES_SAMSUNG = ["Comedy Central Grand Réseau", "Rakuten TV Films Action", "Pluto TV Ciné", "Doctor Who TV"]
+# On simplifie la recherche : si le nom de la chaîne contient un de ces mots, on la garde !
+CHAINES_TNT_CIBLES = ["TF1", "FRANCE 2", "FRANCE 3", "CANAL+", "FRANCE 5", "M6", "ARTE", "C8", "W9", "TMC", "TFX", "NRJ 12", "FRANCE 4", "BFM", "CNEWS", "LCI", "FRANCEINFO"]
+CHAINES_SAMSUNG_CIBLES = ["COMEDY", "RAKUTEN", "PLUTO", "DOCTOR WHO"]
 
 def convertir_heure(xml_date):
     try:
-        # Extrait l'heure (ex: "20260611211000" -> "21:10")
         return f"{xml_date[8:10]}:{xml_date[10:12]}"
     except:
         return "00:00"
 
 def main():
-    print("Téléchargement du fichier XMLTV...")
+    print("1. Téléchargement du fichier XMLTV...")
     try:
-        # Configuration d'un en-tête pour éviter les blocages serveurs
         req = urllib.request.Request(XMLTV_URL, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req) as response, open("tv.xml", "wb") as out_file:
             out_file.write(response.read())
@@ -27,25 +26,25 @@ def main():
         print(f"Erreur de téléchargement : {e}")
         return
 
-    print("Analyse du fichier XML...")
+    print("2. Analyse du fichier...")
     programmes_filtres = []
     aujourdhui = datetime.now().strftime("%Y%m%d")
+    print(f"Recherche des programmes pour la date du : {aujourdhui}")
 
     try:
-        # Lecture pas à pas pour éviter de surcharger la mémoire
         context = ET.iterparse("tv.xml", events=("start", "end"))
         dict_chaines = {}
         
-        # Premier passage pour lister les chaînes
+        # Récupération des noms de chaînes
         for event, elem in context:
             if event == "end" and elem.tag == "channel":
                 chan_id = elem.get("id")
                 disp = elem.find("display-name")
-                if chan_id and disp is not None:
-                    dict_chaines[chan_id] = disp.text
+                if chan_id and disp is not None and disp.text:
+                    dict_chaines[chan_id] = disp.text.upper() # Tout en majuscules pour comparer sans erreur
                 elem.clear()
 
-        # Second passage pour les programmes
+        # Récupération des programmes
         context = ET.iterparse("tv.xml", events=("start", "end"))
         for event, elem in context:
             if event == "end" and elem.tag == "programme":
@@ -53,11 +52,14 @@ def main():
                 
                 if start_time and start_time.startswith(aujourdhui):
                     chan_id = elem.get("channel")
-                    nom_chaine = dict_chaines.get(chan_id, chan_id)
+                    nom_chaine_brut = dict_chaines.get(chan_id, "").upper()
                     
                     source = None
-                    if nom_chaine in CHAINES_TNT: source = "TNT"
-                    elif nom_chaine in CHAINES_SAMSUNG: source = "Samsung TV Plus"
+                    # Vérification souple (ex: si "TF1 HD" contient "TF1")
+                    if any(tnt in nom_chaine_brut for tnt in CHAINES_TNT_CIBLES):
+                        source = "TNT"
+                    elif any(sam in nom_chaine_brut for sam in CHAINES_SAMSUNG_CIBLES):
+                        source = "Samsung TV Plus"
                     
                     if source:
                         titre_elem = elem.find("title")
@@ -72,29 +74,36 @@ def main():
                             elif "doc" in cat_txt: genre = "Documentaire"
                             elif "info" in cat_txt or "journal" in cat_txt: genre = "Actualité"
 
+                        # On redonne un joli nom propre à la chaîne pour l'affichage
+                        nom_affiche = nom_chaine_brut.title()
+
                         programmes_filtres.append({
                             "heure": convertir_heure(start_time),
-                            "chaine": nom_chaine,
+                            "chaine": nom_affiche,
                             "titre": titre,
                             "genre": genre,
                             "source": source
                         })
                 elem.clear()
     except Exception as e:
-        print(f"Erreur pendant l'analyse XML : {e}")
+        print(f"Erreur d'analyse XML : {e}")
 
-    # Tri et sauvegarde
+    # Tri par heure
     programmes_filtres.sort(key=lambda x: x['heure'])
     
-    # Si le tri est vide, on met une donnée de secours pour éviter que la page web bugge
+    # Si la liste est vide, on injecte de fausses lignes explicites pour comprendre le souci
     if not programmes_filtres:
         programmes_filtres.append({
-            "heure": "12:00", "chaine": "Système", "titre": "Mise à jour en cours", "genre": "Autre", "source": "TNT"
+            "heure": "00:00", 
+            "chaine": "Information", 
+            "titre": f"Le fichier XML ne contenait aucun programme pour aujourd'hui ({aujourdhui}).", 
+            "genre": "Autre", 
+            "source": "TNT"
         })
 
     with open("programmes.json", "w", encoding="utf-8") as f:
         json.dump(programmes_filtres, f, ensure_ascii=False, indent=4)
-    print("Fichier programmes.json généré.")
+    print(f"Sauvegarde effectuée. {len(programmes_filtres)} programmes enregistrés.")
 
 if __name__ == "__main__":
     main()
