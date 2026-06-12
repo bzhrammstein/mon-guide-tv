@@ -4,7 +4,8 @@ import json
 from datetime import datetime
 
 # Changement pour une source professionnelle majeure et redondante
-XMLTV_URL = "https://xmltv.ch/xmltv/xmltv-fr.xml"
+# Source internationale redondante, tolérante aux requêtes Cloud
+XMLTV_URL = "https://iptv-org.github.io/epg/guides/fr/telerama.fr.xml"
 
 CHAINES_TNT_CIBLES = ["TF1", "FRANCE 2", "FRANCE 3", "CANAL+", "FRANCE 5", "M6", "ARTE", "C8", "W9", "TMC", "TFX", "NRJ12", "NRJ 12", "FRANCE 4", "BFM", "CNEWS", "LCI", "FRANCEINFO", "FRANCE INFO"]
 CHAINES_SAMSUNG_CIBLES = ["COMEDY", "RAKUTEN", "PLUTO", "DOCTOR WHO"]
