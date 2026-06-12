@@ -1,9 +1,13 @@
+import urllib.request
+import xml.etree.ElementTree as ET
 import json
+from datetime import datetime
 
-def main():
-    print("Génération de la grille de programmes fixe...")
-    
-   # Mapping étendu et actualisé selon la nouvelle grille TNT
+# Flux XMLTV complet, stable et autorisé pour le Cloud
+XMLTV_URL = "https://github.com/thegoodb/fr/raw/main/spetnazfr.xml"
+
+# Mapping étendu et actualisé selon la nouvelle grille TNT
+# Format : 'Identifiant_XML': ('Canal', 'Nom de la chaîne', 'Source')
 CHAINES_MAPPING = {
     # --- FREEBOX TV (TNT Nouvelle Génération) ---
     'TF1.fr': ('1', 'TF1', 'Freebox / Molotov'),
@@ -17,7 +21,7 @@ CHAINES_MAPPING = {
     'W9.fr': ('9', 'W9', 'Freebox / Molotov'),
     'TMC.fr': ('10', 'TMC', 'Freebox / Molotov'),
     'TFX.fr': ('11', 'TFX', 'Freebox / Molotov'),
-    'TeleStarTV.fr': ('12', 'Télé Star TV', 'Freebox / Molotov'), # Remplacement de NRJ12
+    'TeleStarTV.fr': ('12', 'Télé Star TV', 'Freebox / Molotov'),
     'LCP.fr': ('13', 'LCP Public Sénat', 'Freebox / Molotov'),
     'France4.fr': ('14', 'France 4', 'Freebox / Molotov'),
     'BFMTV.fr': ('15', 'BFM TV', 'Freebox / Molotov'),
@@ -29,7 +33,7 @@ CHAINES_MAPPING = {
     '6ter.fr': ('21', '6ter', 'Freebox / Molotov'),
     'RMCStory.fr': ('22', 'RMC Story', 'Freebox / Molotov'),
     'RMCDecouverte.fr': ('23', 'RMC Découverte', 'Freebox / Molotov'),
-    'OuestFranceTV.fr': ('25', 'Ouest-France TV', 'Freebox / Molotov'), # Remplacement de Chérie 25
+    'OuestFranceTV.fr': ('25', 'Ouest-France TV', 'Freebox / Molotov'),
     'LCI.fr': ('26', 'LCI', 'Freebox / Molotov'),
     'FranceInfo.fr': ('27', 'Franceinfo', 'Freebox / Molotov'),
 
@@ -43,7 +47,7 @@ CHAINES_MAPPING = {
     'GameOne.fr': ('118', 'Game One', 'Freebox TV'),
     'Mangas.fr': ('121', 'Mangas', 'Freebox TV'),
     'Histoire.fr': ('205', 'Histoire TV', 'Freebox TV'),
-    'TouteLaHistoire.fr': ('206', 'Toute l\'Histoire', 'Freebox TV'),
+    'TouteLaHistoire.fr': ('206', "Toute l'Histoire", 'Freebox TV'),
     'ScienceEtVie.fr': ('207', 'Science & Vie TV', 'Freebox TV'),
     'Ushuaia.fr': ('204', 'Ushuaïa TV', 'Freebox TV'),
     'TV5Monde.fr': ('357', 'TV5 Monde', 'Freebox TV'),
@@ -60,11 +64,69 @@ CHAINES_MAPPING = {
     'VevoPop.fr': ('4701', 'Vevo Pop', 'Samsung TV Plus')
 }
 
-    # Écriture immédiate du fichier JSON pour l'interface web
+def convertir_heure(xml_date):
+    try:
+        return f"{xml_date[8:10]}:{xml_date[10:12]}"
+    except:
+        return "00:00"
+
+def main():
+    print("1. Téléchargement du flux TV...")
+    try:
+        req = urllib.request.Request(XMLTV_URL, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req) as response:
+            xml_data = response.read()
+        print("Téléchargement réussi.")
+    except Exception as e:
+        print(f"Erreur : {e}")
+        return
+
+    print("2. Analyse et filtrage...")
+    programmes_filtres = []
+    aujourdhui = datetime.now().strftime("%Y%m%d")
+
+    try:
+        root = ET.fromstring(xml_data)
+        for prog in root.findall('programme'):
+            start_time = prog.get('start')
+            
+            if start_time and start_time.startswith(aujourdhui):
+                chan_id = prog.get('channel')
+                
+                if chan_id in CHAINES_MAPPING:
+                    canal, nom_propre, source = CHAINES_MAPPING[chan_id]
+                    
+                    titre_elem = prog.find('title')
+                    titre = titre_elem.text if titre_elem is not None else "Programme"
+                    
+                    genre = "Autre"
+                    cat_elem = prog.find('category')
+                    if cat_elem is not None and cat_elem.text:
+                        cat_txt = cat_elem.text.lower()
+                        if "film" in cat_txt or "ciné" in cat_txt: genre = "Film"
+                        elif "série" in cat_txt or "feuilleton" in cat_txt: genre = "Série"
+                        elif "doc" in cat_txt: genre = "Documentaire"
+                        elif "info" in cat_txt or "journal" in cat_txt: genre = "Actualité"
+
+                    programmes_filtres.append({
+                        "canal": canal,
+                        "heure": convertir_heure(start_time),
+                        "chaine": nom_propre,
+                        "titre": titre,
+                        "genre": genre,
+                        "source": source
+                    })
+
+    except Exception as e:
+        print(f"Erreur d'analyse XML : {e}")
+        return
+
+    # Tri chronologique
+    programmes_filtres.sort(key=lambda x: x['heure'])
+    
     with open("programmes.json", "w", encoding="utf-8") as f:
-        json.dump(programmes, f, ensure_ascii=False, indent=4)
-        
-    print(f"Succès ! {len(programmes)} programmes injectés en local.")
+        json.dump(programmes_filtres, f, ensure_ascii=False, indent=4)
+    print(f"Succès : {len(programmes_filtres)} programmes chargés.")
 
 if __name__ == "__main__":
     main()
