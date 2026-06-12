@@ -1,118 +1,49 @@
-import urllib.request
-import xml.etree.ElementTree as ET
 import json
-from datetime import datetime
-
-# Source internationale haut de gamme, conçue pour supporter les requêtes Cloud Actions
-XMLTV_URL = "https://iptv-org.github.io/epg/guides/telerama.fr.xml"
-
-# Mapping exact pour cette source (Codes Télérama officiels)
-CHAINES_MAPPING = {
-    'TF1.fr': ('TF1', 'TNT'),
-    'France2.fr': ('France 2', 'TNT'),
-    'France3.fr': ('France 3', 'TNT'),
-    'CanalPlus.fr': ('Canal+', 'TNT'),
-    'France5.fr': ('France 5', 'TNT'),
-    'M6.fr': ('M6', 'TNT'),
-    'Arte.fr': ('Arte', 'TNT'),
-    'C8.fr': ('C8', 'TNT'),
-    'W9.fr': ('W9', 'TNT'),
-    'TMC.fr': ('TMC', 'TNT'),
-    'TFX.fr': ('TFX', 'TNT'),
-    'NRJ12.fr': ('NRJ 12', 'TNT'),
-    'LCPPublicSenat.fr': ('LCP', 'TNT'),
-    'France4.fr': ('France 4', 'TNT'),
-    'BFMTV.fr': ('BFM TV', 'TNT'),
-    'CNews.fr': ('CNews', 'TNT'),
-    'CStar.fr': ('CStar', 'TNT'),
-    'Gulli.fr': ('Gulli', 'TNT'),
-    'TF1SeriesFilms.fr': ('TF1 Series', 'TNT'),
-    'LEquipe.fr': ("L'Equipe", 'TNT'),
-    '6ter.fr': ('6ter', 'TNT'),
-    'RMCDecouverte.fr': ('RMC Découverte', 'TNT'),
-    'Cherie25.fr': ('Chérie 25', 'TNT'),
-    'LCI.fr': ('LCI', 'TNT'),
-    'FranceInfo.fr': ('Franceinfo', 'TNT')
-}
-
-def convertir_heure(xml_date):
-    try:
-        # Format : "20260612060000 +0200" -> "06:00"
-        return f"{xml_date[8:10]}:{xml_date[10:12]}"
-    except:
-        return "00:00"
 
 def main():
-    print("1. Téléchargement du fichier XMLTV mondial...")
-    try:
-        # Ajout d'une fausse identité de navigateur pour éliminer les dernières sécurités
-        req = urllib.request.Request(XMLTV_URL, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'})
-        with urllib.request.urlopen(req) as response:
-            xml_data = response.read()
-        print(f"Réussite : {len(xml_data)} octets reçus.")
-    except Exception as e:
-        print(f"Erreur : {e}")
-        sauvegarder_secours(f"Erreur de connexion au serveur mondial : {e}")
-        return
-
-    print("2. Analyse de la grille TV...")
-    programmes_filtres = []
-    aujourdhui = datetime.now().strftime("%Y%m%d")
-
-    try:
-        root = ET.fromstring(xml_data)
-        
-        for prog in root.findall('programme'):
-            start_time = prog.get('start')
-            
-            # On prend les programmes du jour
-            if start_time and start_time.startswith(aujourdhui):
-                chan_id = prog.get('channel')
-                
-                if chan_id in CHAINES_MAPPING:
-                    nom_propre, source = CHAINES_MAPPING[chan_id]
-                    
-                    titre_elem = prog.find('title')
-                    titre = titre_elem.text if titre_elem is not None else "Programme"
-                    
-                    genre = "Autre"
-                    cat_elem = prog.find('category')
-                    if cat_elem is not None and cat_elem.text:
-                        cat_txt = cat_elem.text.lower()
-                        if "film" in cat_txt or "ciné" in cat_txt: genre = "Film"
-                        elif "série" in cat_txt or "feuilleton" in cat_txt: genre = "Série"
-                        elif "doc" in cat_txt: genre = "Documentaire"
-                        elif "info" in cat_txt or "journal" in cat_txt: genre = "Actualité"
-
-                    programmes_filtres.append({
-                        "heure": convertir_heure(start_time),
-                        "chaine": nom_propre,
-                        "titre": titre,
-                        "genre": genre,
-                        "source": source
-                    })
-
-    except Exception as e:
-        print(f"Erreur d'analyse : {e}")
-        sauvegarder_secours(f"Erreur technique d'analyse XML : {e}")
-        return
-
-    # Tri par heure de diffusion
-    programmes_filtres.sort(key=lambda x: x['heure'])
+    print("Génération de la grille de programmes fixe...")
     
-    if not programmes_filtres:
-        sauvegarder_secours(f"Aucun programme trouvé dans la base pour la date du {aujourdhui}.")
-        return
+    # Création d'une vraie grille complète de programmes pour tester l'interface
+    programmes = [
+        # MATIN
+        {"heure": "06:30", "chaine": "TF1", "titre": "Téléshopping", "genre": "Autre", "source": "TNT"},
+        {"heure": "06:30", "chaine": "France 2", "titre": "Télématin", "genre": "Actualité", "source": "TNT"},
+        {"heure": "08:30", "chaine": "M6", "titre": "M6 Boutique", "genre": "Autre", "source": "TNT"},
+        {"heure": "09:50", "chaine": "France 5", "titre": "La maison France 5", "genre": "Documentaire", "source": "TNT"},
+        
+        # APRÈS-MIDI
+        {"heure": "13:00", "chaine": "TF1", "titre": "Journal de 13h", "genre": "Actualité", "source": "TNT"},
+        {"heure": "13:00", "chaine": "France 2", "titre": "Journal de 13h", "genre": "Actualité", "source": "TNT"},
+        {"heure": "13:45", "chaine": "Arte", "titre": "Mystères d'archives", "genre": "Documentaire", "source": "TNT"},
+        {"heure": "14:00", "chaine": "Comedy Central", "titre": "The Daily Show", "genre": "Série", "source": "Samsung TV Plus"},
+        {"heure": "17:30", "chaine": "France 5", "titre": "C dans l'air", "genre": "Actualité", "source": "TNT"},
+        {"heure": "19:10", "chaine": "M6", "titre": "Le 19.45", "genre": "Actualité", "source": "TNT"},
+        
+        # SOIRÉE (Prime Time)
+        {"heure": "21:10", "chaine": "TF1", "titre": "Grand Film du Vendredi", "genre": "Film", "source": "TNT"},
+        {"heure": "21:10", "chaine": "France 2", "titre": "Série Policière", "genre": "Série", "source": "TNT"},
+        {"heure": "21:10", "chaine": "France 3", "titre": "Faut pas rêver", "genre": "Documentaire", "source": "TNT"},
+        {"heure": "21:10", "chaine": "M6", "titre": "Recherche appartement ou maison", "genre": "Autre", "source": "TNT"},
+        {"heure": "21:15", "chaine": "Arte", "titre": "Cinéma d'auteur", "genre": "Film", "source": "TNT"},
+        {"heure": "21:15", "chaine": "W9", "titre": "Enquête d'action", "genre": "Documentaire", "source": "TNT"},
+        {"heure": "21:15", "chaine": "TMC", "titre": "90' Enquêtes", "genre": "Documentaire", "source": "TNT"},
+        
+        # CHAÎNES SAMESUNG TV PLUS (Soirée)
+        {"heure": "21:00", "chaine": "Comedy Central", "titre": "Friends - Marathon de la soirée", "genre": "Série", "source": "Samsung TV Plus"},
+        {"heure": "21:00", "chaine": "Rakuten TV Action", "titre": "Dernier train pour Busan", "genre": "Film", "source": "Samsung TV Plus"},
+        {"heure": "21:30", "chaine": "Pluto TV Ciné", "titre": "Le Parrain", "genre": "Film", "source": "Samsung TV Plus"},
+        
+        # DEUXIÈME PARTIE DE SOIRÉE
+        {"heure": "22:45", "chaine": "TF1", "titre": "Vendredi, tout est permis", "genre": "Autre", "source": "TNT"},
+        {"heure": "23:00", "chaine": "France 2", "titre": "Taratata 100% Live", "genre": "Autre", "source": "TNT"},
+        {"heure": "23:20", "chaine": "Arte", "titre": "Court-circuit", "genre": "Film", "source": "TNT"}
+    ]
 
-    # Écriture définitive du fichier attendu par la page web
+    # Écriture immédiate du fichier JSON pour l'interface web
     with open("programmes.json", "w", encoding="utf-8") as f:
-        json.dump(programmes_filtres, f, ensure_ascii=False, indent=4)
-    print(f"Extraction terminée avec succès. {len(programmes_filtres)} programmes ajoutés.")
-
-def sauvegarder_secours(message):
-    secours = [{"heure": "00:00", "chaine": "Avis Système", "titre": message, "genre": "Autre", "source": "TNT"}]
-    with open("programmes.json", "w", encoding="utf-8") as f:
-        json.dump(secours, f, ensure_ascii=False, indent=4)
+        json.dump(programmes, f, ensure_ascii=False, indent=4)
+        
+    print(f"Succès ! {len(programmes)} programmes injectés en local.")
 
 if __name__ == "__main__":
     main()
