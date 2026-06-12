@@ -118,6 +118,9 @@
         const srcValue = document.getElementById('filter-source').value;
         const genreValue = document.getElementById('filter-genre').value;
         const searchValue = document.getElementById('search-bar').value.toLowerCase();
+        const trancheSelectionnee = document.getElementById("trancheFilter").value;
+// Dans votre boucle de filtrage :
+const correspondTranche = (trancheSelectionnee === "Tous" || prog.tranche === trancheSelectionnee);
 
         const filtres = programmesDuJour.filter(p => {
             const matchSource = (srcValue === 'tous' || p.source.includes(srcValue));
