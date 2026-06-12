@@ -68,9 +68,12 @@
         const tbody = document.getElementById('tv-body');
         tbody.innerHTML = '<tr><td colspan="6" class="no-data">Chargement des données fraîches...</td></tr>';
         
-        fetch('./programmes.json?nocache=' + Math.random())
+        // Utilisation d'un chemin relatif simple sans le point initial pour éviter les conflits de domaine GitHub Pages
+        fetch('programmes.json?nocache=' + Math.random())
             .then(response => {
-                if (!response.ok) throw new Error("Erreur de chargement du fichier JSON");
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status + " : Le fichier programmes.json est introuvable à cette adresse.");
+                }
                 return response.json();
             })
             .then(data => {
@@ -78,7 +81,7 @@
                 afficherProgrammes(programmesDuJour);
             })
             .catch(error => {
-                tbody.innerHTML = `<tr><td colspan="6" class="no-data" style="color: #dc2626;">❌ Erreur : Impossible de lire les données. Attendez 30 secondes et cliquez sur "Forcer la mise à jour".</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="no-data" style="color: #dc2626; font-weight: bold;">❌ Erreur technique : ${error.message}<br><br><span style="font-size: 13px; color: #64748b; font-weight: normal;">Essayez de vider le cache ou de cliquer à nouveau sur "Forcer la mise à jour" dans 30 secondes.</span></td></tr>`;
             });
     }
 
@@ -90,7 +93,7 @@
             return;
         }
         liste.forEach(p => {
-            const badgeClass = p.source === 'Samsung TV Plus' ? 'source-samsung' : 'source-freebox';
+            const badgeClass = p.source.includes('Samsung') ? 'source-samsung' : 'source-freebox';
             const row = `<tr>
                 <td><span class="canal-badge">N° ${p.canal}</span></td>
                 <td><strong>${p.heure}</strong></td>
